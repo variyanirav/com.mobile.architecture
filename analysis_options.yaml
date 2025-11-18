@@ -1,0 +1,24 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: false
+
+linter:
+  rules:
+    avoid_print: true
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
+    sort_pub_dependencies: true
+    public_member_api_docs: false
+    always_declare_return_types: true
+    avoid_unused_constructor_parameters: true
+    avoid_redundant_argument_values: true
+    cancel_subscriptions: true
+    dangling_library_doc_comments: true
+    unnecessary_late: true
+    use_super_parameters: true

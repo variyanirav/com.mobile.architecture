@@ -1,0 +1,13 @@
+name: flutter_architect_capstone
+packages:
+  - packages/*
+  - mobile
+
+command:
+  bootstrap:
+    usePubspecOverrides: true
+
+scripts:
+  analyze: "melos exec --flutter -- dart analyze"
+  test: "melos exec --flutter -- flutter test"
+  boundary_check: "dart scripts/check_import_boundaries.dart"
