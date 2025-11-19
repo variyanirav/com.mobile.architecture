@@ -16,59 +16,59 @@ Shows the high-level technology choices and how containers (applications, data s
                                          ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │  Mobile Architecture App (Flutter)                                      │
-│                                                                          │
-│  ┌────────────────────────┐         ┌────────────────────────┐         │
-│  │                        │         │                        │         │
-│  │  Flutter UI Layer      │────────▶│  State Management      │         │
-│  │  (Presentation)        │         │  (BLoC/Cubit)          │         │
-│  │                        │         │                        │         │
-│  │  - Widgets             │         │  - Events/States       │         │
-│  │  - Screens             │         │  - Business workflows  │         │
-│  │  - Navigation          │         │                        │         │
-│  └────────────────────────┘         └───────────┬────────────┘         │
+│                                                                         │
+│  ┌────────────────────────┐         ┌────────────────────────┐          │
+│  │                        │         │                        │          │
+│  │  Flutter UI Layer      │────────▶│  State Management      │          │
+│  │  (Presentation)        │         │  (BLoC/Cubit)          │          │
+│  │                        │         │                        │          │
+│  │  - Widgets             │         │  - Events/States       │          │
+│  │  - Screens             │         │  - Business workflows  │          │
+│  │  - Navigation          │         │                        │          │
+│  └────────────────────────┘         └────────────┬───────────┘          │
 │                                                  │                      │
 │                                                  │ Calls                │
 │                                                  ▼                      │
-│                                     ┌────────────────────────┐         │
-│                                     │                        │         │
-│                                     │  Use Cases Layer       │         │
-│                                     │  (Application)         │         │
-│                                     │                        │         │
-│                                     │  - Business Logic      │         │
-│                                     │  - Validation          │         │
-│                                     │                        │         │
-│                                     └───────────┬────────────┘         │
-│                                                 │                      │
-│                                                 │ Uses                 │
-│                                                 ▼                      │
-│                                     ┌────────────────────────┐         │
-│                                     │                        │         │
-│                                     │  Domain Layer          │         │
-│                                     │  (Entities & Repos)    │         │
-│                                     │                        │         │
-│                                     │  - Pure entities       │         │
-│                                     │  - Interfaces          │         │
-│                                     │                        │         │
-│                                     └───────────┬────────────┘         │
-│                                                 │                      │
-│                                                 │ Implemented by       │
-│                                                 ▼                      │
-│  ┌────────────────────────┐         ┌────────────────────────┐        │
-│  │                        │         │                        │        │
-│  │  Local Storage         │◀────────│  Data Layer            │        │
-│  │  (SQLite/Hive)         │         │  (Repositories)        │        │
-│  │                        │         │                        │        │
-│  │  - Offline cache       │         │  - API clients         │────────┼──┐
-│  │  - User preferences    │         │  - Data mapping        │        │  │
-│  │  - Session data        │         │  - Error handling      │        │  │
-│  │                        │         │                        │        │  │
-│  └────────────────────────┘         └────────────────────────┘        │  │
+│                                     ┌────────────────────────┐          │
+│                                     │                        │          │
+│                                     │  Use Cases Layer       │          │
+│                                     │  (Application)         │          │
+│                                     │                        │          │
+│                                     │  - Business Logic      │          │
+│                                     │  - Validation          │          │
+│                                     │                        │          │
+│                                     └───────────┬────────────┘          │
+│                                                 │                       │
+│                                                 │ Uses                  │
+│                                                 ▼                       │
+│                                     ┌────────────────────────┐          │
+│                                     │                        │          │
+│                                     │  Domain Layer          │          │
+│                                     │  (Entities & Repos)    │          │
+│                                     │                        │          │
+│                                     │  - Pure entities       │          │
+│                                     │  - Interfaces          │          │
+│                                     │                        │          │
+│                                     └───────────┬────────────┘          │
+│                                                 │                       │
+│                                                 │ Implemented by        │
+│                                                 ▼                       │
+│  ┌────────────────────────┐         ┌────────────────────────┐          │
+│  │                        │         │                        │          │
+│  │  Local Storage         │◀────────│  Data Layer            │          │
+│  │  (SQLite/Hive)         │         │  (Repositories)        │          │
+│  │                        │         │                        │          │
+│  │  - Offline cache       │         │  - API clients         │──────────┼──┐
+│  │  - User preferences    │         │  - Data mapping        │          │  │
+│  │  - Session data        │         │  - Error handling      │          │  │
+│  │                        │         │                        │          │  │
+│  └────────────────────────┘         └────────────────────────┘          │  │
 │                                                                         │  │
 └─────────────────────────────────────────────────────────────────────────┘  │
-                                                                              │
-                                                                              │ HTTPS/JSON
-                                                                              │
-                                         ┌────────────────────────────────────┘
+                                                                             │
+                                                                             │ HTTPS/JSON
+                                                                             │
+                                         ┌───────────────────────────────────┘
                                          │
                                          ▼
                           ┌──────────────────────────────────┐
