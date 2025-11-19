@@ -1,12 +1,31 @@
+import 'package:mobile/core/error/failures.dart';
+import 'package:mobile/core/error/result.dart';
 import 'package:mobile/features/auth/data/entities/user_entity.dart';
 import 'package:mobile/features/auth/domain/entities/user_entity.dart';
 import 'package:mobile/features/auth/domain/repository/user_repository.dart';
 
 class UserRepositoryImpl implements UserRepository {
   @override
-  Future<UserEntity> login(String email, String password) async {
-    // mock network call
-    await Future.delayed(Duration(milliseconds: 500));
-    return UserModel(id: '123', email: email);
+  Future<Result<Failure, UserEntity>> login(
+    String email,
+    String password,
+  ) async {
+    try {
+      // Mock network call
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Simulate authentication logic
+      if (password.length < 6) {
+        return const Left(
+          AuthenticationFailure('Password must be at least 6 characters'),
+        );
+      }
+
+      // Simulate successful login
+      final user = UserModel(id: '123', email: email);
+      return Right(user);
+    } catch (e) {
+      return Left(ServerFailure('Login failed: ${e.toString()}'));
+    }
   }
 }
