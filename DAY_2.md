@@ -65,20 +65,80 @@ lib/
  │   ├── error/
  │   ├── usecases/
  │   └── utils/
+ │
  ├── features/
  │   ├── auth/
  │   │   ├── domain/
  │   │   │   ├── entities/
+ │   │   │   │   └── user_entity.dart
+ │   │   │   │
  │   │   │   ├── repositories/
+ │   │   │   │   └── auth_repository.dart
+ │   │   │   │
  │   │   │   └── usecases/
+ │   │   │       ├── login_usecase.dart
+ │   │   │       ├── register_usecase.dart
+ │   │   │       ├── forgot_password_usecase.dart
+ │   │   │       ├── send_otp_usecase.dart
+ │   │   │       ├── verify_otp_usecase.dart
+ │   │   │       └── logout_usecase.dart
+ │   │   │
  │   │   ├── data/
  │   │   │   ├── models/
+ │   │   │   │   ├── user_model.dart
+ │   │   │   │   ├── login_request_model.dart
+ │   │   │   │   ├── register_request_model.dart
+ │   │   │   │   ├── forgot_password_request_model.dart
+ │   │   │   │   └── auth_response_model.dart
+ │   │   │   │
  │   │   │   └── repositories_impl/
+ │   │   │       └── auth_repository_impl.dart
+ │   │   │
  │   │   └── presentation/
- │   │       ├── bloc/
- │   │       └── pages/
+ │   │       ├── login/
+ │   │       │   ├── bloc/
+ │   │       │   │   ├── login_bloc.dart
+ │   │       │   │   ├── login_event.dart
+ │   │       │   │   └── login_state.dart
+ │   │       │   │
+ │   │       │   └── pages/
+ │   │       │       └── login_page.dart
+ │   │       │
+ │   │       ├── register/
+ │   │       │   ├── bloc/
+ │   │       │   │   ├── register_bloc.dart
+ │   │       │   │   ├── register_event.dart
+ │   │       │   │   └── register_state.dart
+ │   │       │   │
+ │   │       │   └── pages/
+ │   │       │       └── register_page.dart
+ │   │       │
+ │   │       ├── forgot_password/
+ │   │       │   ├── bloc/
+ │   │       │   │   ├── forgot_password_bloc.dart
+ │   │       │   │   ├── forgot_password_event.dart
+ │   │       │   │   └── forgot_password_state.dart
+ │   │       │   │
+ │   │       │   └── pages/
+ │   │       │       └── forgot_password_page.dart
+ │   │       │
+ │   │       ├── otp/
+ │   │       │   ├── bloc/
+ │   │       │   │   ├── otp_bloc.dart
+ │   │       │   │   ├── otp_event.dart
+ │   │       │   │   └── otp_state.dart
+ │   │       │   │
+ │   │       │   └── pages/
+ │   │       │       └── otp_page.dart
+ │   │       │
+ │   │       └── common/
+ │   │           ├── auth_text_field.dart
+ │   │           ├── auth_primary_button.dart
+ │   │           └── auth_error_view.dart
+ │   │
  │   └── tasks/
  │       └── ...
+ │
  └── main.dart
 ```
 

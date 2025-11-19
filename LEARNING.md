@@ -16,3 +16,13 @@ Template (copy per day):
   - None.
 - Next:
   - Day 2 — Clean Architecture basics.
+
+## Day 2 — 2025-11-19
+- Learned:
+  - Clean Architecture layers (Presentation → Application → Domain → Data) and dependency rule (dependencies point inward only).
+  - Separation between Entities (pure business) and Models (with serialization) - Entity in domain, Model in data layer.
+  - Result/Either pattern for functional error handling - avoids try-catch in presentation layer and makes errors explicit in type system.
+- Issue:
+  - Initial naming conflict between Failure class (error types) and Failure wrapper (Result type) - resolved by renaming to Left/Right pattern.
+- Next:
+  - Day 3 — Modularization & packages (feature modules, core package, shared UI).
