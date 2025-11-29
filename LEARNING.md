@@ -26,3 +26,13 @@ Template (copy per day):
   - Initial naming conflict between Failure class (error types) and Failure wrapper (Result type) - resolved by renaming to Left/Right pattern.
 - Next:
   - Day 3 — Modularization & packages (feature modules, core package, shared UI).
+
+## Day 3 — 2025-11-26
+- Learned:
+  - Package modularization transforms monolithic app into multi-package architecture with clear boundaries - packages can be built/tested independently.
+  - Created two packages: `core` (shared infrastructure - error handling, logging) and `feature_auth` (complete auth feature with domain/data/presentation layers).
+  - Melos tool orchestrates monorepo - manages dependencies, runs commands across all packages with single command (melos run test/analyze).
+- Issue:
+  - Melos bootstrap had version compatibility issue, but manual pub get worked fine since packages use path dependencies.
+- Next:
+  - Day 4 — State management patterns comparison (Provider vs Riverpod vs BLoC).

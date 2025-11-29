@@ -1,0 +1,9 @@
+name: com.mobile.architecture
+environment:
+  sdk: ">=3.9.2 <4.0.0"
+dev_dependencies:
+  melos: ^7.3.0
+workspace:
+  - packages/core
+  - packages/feature_auth
+melos: 

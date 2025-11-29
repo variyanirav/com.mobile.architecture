@@ -1,13 +1,67 @@
-name: flutter_architect_capstone
+name: com_mobile_architecture
+repository: https://github.com/yourusername/com.mobile.architecture
+
 packages:
-  - packages/*
+  - packages/**
   - mobile
 
 command:
   bootstrap:
     usePubspecOverrides: true
+    hooks:
+      post: melos exec -- "echo ✅ Bootstrapped \$MELOS_PACKAGE_NAME"
 
 scripts:
-  analyze: "melos exec --flutter -- dart analyze"
-  test: "melos exec --flutter -- flutter test"
-  boundary_check: "dart scripts/check_import_boundaries.dart"
+  # Analyze all packages
+  analyze:
+    description: Run static analysis on all packages
+    run: flutter analyze
+
+  # Format all code
+  format:
+    description: Format code in all packages
+    run: dart format .
+
+  # Check if code is properly formatted
+  format:check:
+    description: Check if code is properly formatted
+    run: dart format --output=none --set-exit-if-changed .
+
+  # Run all tests
+  test:
+    description: Run tests in all packages
+    run: flutter test
+
+  # Clean all packages
+  clean:
+    description: Clean all packages
+    run: flutter clean
+
+  # Get dependencies for all packages
+  get:
+    description: Get dependencies in all packages
+    run: flutter pub get
+
+  # Analyze only feature packages
+  analyze:features:
+    description: Run analysis on feature packages only
+    run: flutter analyze
+    packageFilters:
+      scope: "feature_*"
+
+  # Test only feature packages
+  test:features:
+    description: Run tests on feature packages only
+    run: flutter test
+    packageFilters:
+      scope: "feature_*"
+
+  # Check for outdated dependencies
+  outdated:
+    description: Check for outdated dependencies
+    run: flutter pub outdated
+
+  # Check import boundaries (custom script)
+  boundary_check:
+    description: Check architecture import boundaries
+    run: dart scripts/check_import_boundaries.dart
