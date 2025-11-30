@@ -2,9 +2,10 @@ name: core
 description: Core utilities and shared infrastructure for the mobile architecture project
 version: 0.1.0
 publish_to: "none"
+resolution: workspace
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ^3.9.2
 
 dependencies:
   equatable: ^2.0.5

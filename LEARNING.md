@@ -31,8 +31,9 @@ Template (copy per day):
 - Learned:
   - Package modularization transforms monolithic app into multi-package architecture with clear boundaries - packages can be built/tested independently.
   - Created two packages: `core` (shared infrastructure - error handling, logging) and `feature_auth` (complete auth feature with domain/data/presentation layers).
-  - Melos tool orchestrates monorepo - manages dependencies, runs commands across all packages with single command (melos run test/analyze).
+  - Melos 7.x uses Pub Workspaces (Dart 3.6+) with configuration in root `pubspec.yaml` instead of separate `melos.yaml` - all packages require `resolution: workspace` field.
+  - Solution architecture for decoupling: use domain interfaces for shared data (SessionProvider), micro packages for optional features, composition over inheritance for extended entities.
 - Issue:
-  - Melos bootstrap had version compatibility issue, but manual pub get worked fine since packages use path dependencies.
+  - Discovered `melos.yaml` is deprecated in Melos 7.x - migrated to `pubspec.yaml` with `workspace:` and `melos:` keys, added `resolution: workspace` to all packages.
 - Next:
   - Day 4 — State management patterns comparison (Provider vs Riverpod vs BLoC).

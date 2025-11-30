@@ -2,9 +2,10 @@ name: feature_auth
 description: Authentication feature package - handles login, register, password reset
 version: 0.1.0
 publish_to: "none"
+resolution: workspace
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ^3.9.2
 
 dependencies:
   core:

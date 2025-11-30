@@ -1,9 +1,56 @@
-name: com.mobile.architecture
+name: com_mobile_architecture
+publish_to: none
+
 environment:
   sdk: ">=3.9.2 <4.0.0"
-dev_dependencies:
-  melos: ^7.3.0
+
 workspace:
   - packages/core
   - packages/feature_auth
-melos: 
+  - mobile
+
+dev_dependencies:
+  melos: ^7.3.0
+
+melos:
+  name: com_mobile_architecture
+
+  scripts:
+    # Analyze all packages
+    analyze:
+      description: Run static analysis on all packages
+      run: flutter analyze
+
+    # Format all code
+    format:
+      description: Format code in all packages
+      run: dart format .
+
+    # Check if code is properly formatted
+    format:check:
+      description: Check if code is properly formatted
+      run: dart format --output=none --set-exit-if-changed .
+
+    # Run all tests
+    test:
+      description: Run tests in all packages
+      exec: flutter test
+      packageFilters:
+        dirExists: test
+
+    # Clean all packages
+    clean:
+      description: Clean all packages
+      run: flutter clean
+
+    # Get dependencies for all packages
+    get:
+      description: Get dependencies in all packages
+      run: flutter pub get
+
+    # Analyze only feature packages
+    analyze:features:
+      description: Run analysis on feature packages only
+      run: flutter analyze
+      packageFilters:
+        scope: "feature_*"

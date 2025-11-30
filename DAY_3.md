@@ -109,6 +109,8 @@ Common widgets and theming:
 
 **Melos** is a tool for managing Dart/Flutter monorepos (multiple packages in one repository).
 
+> **Note:** As of Melos 7.x, configuration is done via `pubspec.yaml` (using Pub Workspaces) instead of a separate `melos.yaml` file. See the migration guide in Task 5 for details.
+
 Think of it as:
 * **Package Manager** - Manages dependencies between packages
 * **Task Runner** - Runs commands across all packages
@@ -145,16 +147,20 @@ What it does:
 * Ensures all packages can find each other
 
 #### **2. Scripts**
-Define reusable commands in `melos.yaml`:
+Define reusable commands in root `pubspec.yaml` (under `melos:` key):
 ```yaml
-scripts:
-  analyze:
-    run: flutter analyze
-    description: Run static analysis
+# pubspec.yaml (root)
+melos:
+  scripts:
+    analyze:
+      run: flutter analyze
+      description: Run static analysis
     
-  test:
-    run: flutter test
-    description: Run all tests
+    test:
+      exec: flutter test
+      description: Run all tests
+      packageFilters:
+        dirExists: test
 ```
 
 Then run with:
@@ -321,6 +327,293 @@ scripts:
 * Single command to manage all packages
 * Consistent tooling across packages
 * Easier CI/CD integration
+
+---
+
+### 🚀 Melos 7.x Migration Guide (Latest Configuration)
+
+> ⚠️ **Important:** Starting from Melos 7.x, the standalone `melos.yaml` file is **deprecated**. Melos now uses **Pub Workspaces** (Dart 3.6+) and configuration is moved to `pubspec.yaml`.
+
+#### 📋 What Changed in Melos 7.x?
+
+**Old Way (Deprecated):**
+- Separate `melos.yaml` file for configuration
+- Uses `pubspec_overrides.yaml` for local package linking
+- Requires Dart SDK 2.12+
+
+**New Way (Melos 7.x+):**
+- Configuration in root `pubspec.yaml` under `melos:` key
+- Uses **Pub Workspaces** for package linking
+- Requires **Dart SDK 3.6.0+**
+- No more `pubspec_overrides.yaml` generation
+
+#### 🔧 Step-by-Step Migration for Freshers
+
+**Step 1: Update Root `pubspec.yaml`**
+
+Create or update your root `pubspec.yaml` with workspace configuration:
+
+```yaml
+name: com_mobile_architecture
+publish_to: none
+
+environment:
+  sdk: ">=3.9.2 <4.0.0"
+
+# 👇 Define all packages in the workspace
+workspace:
+  - packages/core
+  - packages/feature_auth
+  - mobile
+
+# 👇 Add melos as dev dependency
+dev_dependencies:
+  melos: ^7.3.0
+
+# 👇 Move all melos.yaml content here
+melos:
+  name: com_mobile_architecture
+  
+  scripts:
+    # Analyze all packages
+    analyze:
+      description: Run static analysis on all packages
+      run: flutter analyze
+
+    # Format all code
+    format:
+      description: Format code in all packages
+      run: dart format .
+
+    # Check if code is properly formatted
+    format:check:
+      description: Check if code is properly formatted
+      run: dart format --output=none --set-exit-if-changed .
+
+    # Run all tests (only in packages with test directories)
+    test:
+      description: Run tests in all packages
+      exec: flutter test
+      packageFilters:
+        dirExists: test
+
+    # Clean all packages
+    clean:
+      description: Clean all packages
+      run: flutter clean
+
+    # Get dependencies for all packages
+    get:
+      description: Get dependencies in all packages
+      run: flutter pub get
+
+    # Analyze only feature packages
+    analyze:features:
+      description: Run analysis on feature packages only
+      run: flutter analyze
+      packageFilters:
+        scope: "feature_*"
+```
+
+**Key Points:**
+- `workspace:` - List all package paths (no glob support yet, coming in Dart 3.11)
+- `melos:` - All previous `melos.yaml` content goes here
+- `publish_to: none` - Root workspace should not be published
+
+**Step 2: Add `resolution: workspace` to ALL Package `pubspec.yaml` Files**
+
+This is **required** for every package in the workspace.
+
+**`packages/core/pubspec.yaml`:**
+```yaml
+name: core
+description: Core utilities and shared infrastructure
+version: 0.1.0
+publish_to: "none"
+resolution: workspace  # 👈 Add this line
+
+environment:
+  sdk: ^3.9.2  # 👈 Must be 3.6.0 or higher
+
+dependencies:
+  equatable: ^2.0.5
+  flutter:
+    sdk: flutter
+```
+
+**`packages/feature_auth/pubspec.yaml`:**
+```yaml
+name: feature_auth
+description: Authentication feature package
+version: 0.1.0
+publish_to: "none"
+resolution: workspace  # 👈 Add this line
+
+environment:
+  sdk: ^3.9.2  # 👈 Must be 3.6.0 or higher
+
+dependencies:
+  core:
+    path: ../core  # 👈 Path dependencies still work
+  flutter:
+    sdk: flutter
+```
+
+**`mobile/pubspec.yaml`:**
+```yaml
+name: mobile
+description: "A new Flutter project."
+publish_to: "none"
+version: 1.0.0+1
+resolution: workspace  # 👈 Add this line
+
+environment:
+  sdk: ^3.9.2  # 👈 Must be 3.6.0 or higher
+
+dependencies:
+  flutter:
+    sdk: flutter
+  core:
+    path: ../packages/core
+  feature_auth:
+    path: ../packages/feature_auth
+```
+
+**Step 3: Remove Old `melos.yaml` File**
+
+```bash
+rm melos.yaml
+```
+
+The file is no longer needed as everything is now in `pubspec.yaml`.
+
+**Step 4: Install Melos and Bootstrap Workspace**
+
+```bash
+# Install dependencies (including melos)
+dart pub get
+
+# Bootstrap the workspace
+melos bootstrap
+```
+
+**Expected Output:**
+```
+melos bootstrap
+  └> /path/to/your/project
+Running "flutter pub get" in workspace...
+  > SUCCESS
+
+Generating IntelliJ IDE files...
+  > SUCCESS
+
+ -> 3 packages bootstrapped
+```
+
+**Step 5: Verify Melos Commands Work**
+
+```bash
+# List all packages
+melos list
+
+# Run analyze on all packages
+melos run analyze
+
+# Run tests (only on packages with tests)
+melos run test
+
+# Format all code
+melos run format
+```
+
+#### 🆚 Before & After Comparison
+
+**Before (Old melos.yaml):**
+```yaml
+# melos.yaml (DEPRECATED)
+name: com_mobile_architecture
+packages:
+  - packages/**
+  - mobile
+
+scripts:
+  analyze:
+    run: flutter analyze
+```
+
+**After (New pubspec.yaml):**
+```yaml
+# pubspec.yaml (ROOT)
+name: com_mobile_architecture
+publish_to: none
+
+environment:
+  sdk: ^3.9.2
+
+workspace:  # 👈 Explicit package list
+  - packages/core
+  - packages/feature_auth
+  - mobile
+
+dev_dependencies:
+  melos: ^7.3.0  # 👈 Melos as dependency
+
+melos:  # 👈 Configuration moved here
+  name: com_mobile_architecture
+  scripts:
+    analyze:
+      run: flutter analyze
+```
+
+#### 🎯 Key Benefits of Melos 7.x
+
+1. **Native Dart Support** - Uses pub workspaces built into Dart SDK
+2. **No More Overrides** - No `pubspec_overrides.yaml` generation
+3. **Better IDE Support** - IDEs understand workspace structure natively
+4. **Single Configuration** - Everything in `pubspec.yaml`
+5. **Future-Proof** - Aligns with Dart's direction for monorepo support
+
+#### ⚠️ Common Issues & Solutions
+
+**Issue 1: "workspace and resolution requires at least language version 3.5"**
+
+**Solution:** Update SDK constraint in ALL packages:
+```yaml
+environment:
+  sdk: ^3.9.2  # Must be 3.6.0 or higher
+```
+
+**Issue 2: "Melos not found"**
+
+**Solution:** Run `dart pub get` in root directory first to install melos.
+
+**Issue 3: "Package not in workspace"**
+
+**Solution:** Verify the package is listed in `workspace:` array in root `pubspec.yaml`.
+
+**Issue 4: Tests fail with "not within workspace"**
+
+**Solution:** Ensure `resolution: workspace` is added to that package's `pubspec.yaml`.
+
+#### 📚 Migration Checklist for Freshers
+
+- [ ] Root `pubspec.yaml` created with `workspace:` list
+- [ ] Root `pubspec.yaml` has `melos: ^7.3.0` in `dev_dependencies`
+- [ ] Root `pubspec.yaml` has `melos:` configuration section
+- [ ] All packages have `resolution: workspace` in their `pubspec.yaml`
+- [ ] All packages have `sdk: ^3.9.2` or higher
+- [ ] Old `melos.yaml` file deleted
+- [ ] `dart pub get` runs successfully in root
+- [ ] `melos bootstrap` runs successfully
+- [ ] `melos list` shows all packages
+- [ ] `melos run analyze` works
+- [ ] All tests still pass
+
+#### 🔗 Official Documentation
+
+- [Melos 7.x Documentation](https://melos.invertase.dev/)
+- [Dart Pub Workspaces](https://dart.dev/tools/pub/workspaces)
+- [Migration Guide](https://melos.invertase.dev/getting-started#migrating-from-yaml)
 
 ---
 
