@@ -885,6 +885,7 @@ feature_feed → domain ← feature_auth
 Both features depend on `domain` (stable contracts), not each other!
 
 **Benefits:**
+
 ✅ Features don't know about each other  
 ✅ Can test with mock SessionProvider  
 ✅ Can swap auth implementation  
@@ -1030,6 +1031,7 @@ import 'package:feature_auth/feature_auth.dart'
 ```
 
 **Benefits:**
+
 ✅ Reuse business logic  
 ✅ Customize UI per app  
 ✅ No code bloat  
@@ -1152,9 +1154,587 @@ void main() {
 ```
 
 **Benefits:**
+
 ✅ No dependency on real auth implementation  
 ✅ Fast tests (no real network, no real auth)  
 ✅ Easy to test edge cases  
+
+---
+
+## 🧩 **Q7: Should every project use a modular package structure?**
+
+### **Answer:**
+
+No. Packaging depends on **team size and future scope** of the project.
+
+| Project Size       | # Devs | Recommended Architecture                         |
+| ------------------ | ------ | ------------------------------------------------ |
+| Small              | 1–2    | Single app + features folder (no packages)       |
+| Medium             | 3–5    | One package per **major domain** (auth, tickets) |
+| Large / Enterprise | 5+     | Multi-package monorepo with melos                |
+
+> **Key Principle:** Use packaging only when problem size demands scalability — avoid over-engineering.
+
+**When NOT to modularize:**
+- Solo developer, simple app
+- Proof of concept / MVP
+- Short-term project (< 3 months)
+- No plan to scale team
+
+**When TO modularize:**
+- Multiple developers working simultaneously
+- Long-term project with evolving features
+- Need to reuse features across multiple apps
+- Large codebase (10+ features)
+
+---
+
+## 🧩 **Q8: Why do packages improve scalability?**
+
+### **Answer:**
+
+Because each feature becomes an **independent unit** with:
+
+✅ **Independent development** - Teams work on different packages without conflicts  
+✅ **Independent testing** - Test packages in isolation with their own test suites  
+✅ **Independent business logic** - Domain rules stay encapsulated  
+✅ **Clear developer boundaries** - Ownership and responsibility are explicit  
+✅ **Lower merge conflicts** - Changes in one package don't affect others  
+✅ **Faster CI builds** - Only rebuild changed packages  
+✅ **Reusable modules** - Share packages across multiple apps  
+
+**Real-world example:**
+```
+Without packages:
+- 5 devs working in mobile/lib/features/
+- Constant merge conflicts
+- 10-minute full rebuild on every change
+- Unclear who owns what
+
+With packages:
+- Dev A: packages/feature_auth
+- Dev B: packages/feature_payment
+- Dev C: packages/feature_profile
+- Dev D: packages/feature_feed
+- Dev E: packages/core
+- No conflicts, 2-minute incremental builds
+```
+
+---
+
+## 🧩 **Q9: What should go inside feature packages?**
+
+### **Answer:**
+
+A **feature package** must contain a complete vertical slice following Clean Architecture:
+
+```
+packages/feature_auth/
+  ├── lib/
+  │   ├── domain/              # Business logic layer
+  │   │   ├── entities/        # Core business objects
+  │   │   ├── repositories/    # Repository interfaces
+  │   │   └── usecases/        # Business use cases
+  │   │
+  │   ├── data/                # Data layer
+  │   │   ├── models/          # Data transfer objects
+  │   │   ├── repositories/    # Repository implementations
+  │   │   └── datasources/     # API clients, local storage
+  │   │
+  │   ├── presentation/        # UI layer
+  │   │   ├── bloc/            # State management
+  │   │   ├── pages/           # Screen widgets
+  │   │   └── widgets/         # Feature-specific widgets
+  │   │
+  │   └── feature_auth.dart    # Public API (exports)
+  │
+  ├── test/                    # Unit & widget tests
+  └── pubspec.yaml             # Dependencies
+```
+
+**Optional additions:**
+- `utils/` - Feature-specific helper functions
+- `constants/` - Feature-specific constants
+- `routing/` - Feature navigation logic
+
+**What NOT to include:**
+- Generic utilities (goes in `core`)
+- Shared UI widgets (goes in `shared_ui`)
+- Dependencies on other features (use domain interfaces)
+
+---
+
+## 🧩 **Q10: Where should common models go?**
+
+### **Answer:**
+
+It depends on **who uses the model**:
+
+| Usage Scenario                                                     | Location                         | Example                           |
+| ------------------------------------------------------------------ | -------------------------------- | --------------------------------- |
+| Used by multiple features (global entities)                        | **`packages/domain`**            | User, AppConfig, Profile          |
+| Used by one feature only                                           | **That feature's domain/models** | LoginRequest, OTPToken            |
+| Data transfer object (API response)                                | **That feature's data/models**   | UserDTO, LoginResponseModel       |
+| Shared across apps (if multi-app workspace)                        | **`packages/shared_domain`**     | Address, Currency, PaymentMethod  |
+| UI-specific model (view state)                                     | **That feature's presentation**  | LoginFormState, ProfileViewModel  |
+
+**Decision Rule:**
+> If a model has **domain-specific meaning** and is used by only one feature → keep it inside that feature's domain.
+> If it's **truly global** (User, Session, AppConfig) → move to shared domain package.
+
+**Example:**
+```dart
+// ✅ GOOD: User is global, used by auth, profile, payment
+packages/domain/lib/entities/user.dart
+
+// ✅ GOOD: LoginRequest is auth-specific
+packages/feature_auth/lib/domain/entities/login_request.dart
+
+// ❌ BAD: Don't put LoginRequest in shared domain
+// It's only used by auth!
+```
+
+---
+
+## 🧩 **Q11: What about shared UI widgets used by multiple features?**
+
+### **Answer:**
+
+Use a **`shared_ui`** (or `core_ui`) package **only if** the widget meets these criteria:
+
+✅ Has **reusable logic** (loading states, validation, animations)  
+✅ **Design is consistent** across the entire app  
+✅ You want a **single tested implementation**  
+
+**Examples of shared UI widgets:**
+- `AppPrimaryButton` (with loading state, theme, analytics)
+- `AppTextField` (with validation styling, icons)
+- `LoadingOverlay` (consistent loading indicator)
+- `ErrorDialog` (standardized error display)
+- `EmptyStateWidget` (consistent empty state design)
+
+**When NOT to add to shared UI:**
+- Widget looks different on different screens
+- Very simple composition (Text + Padding + Icon)
+- Has domain-specific meaning (`LoginButton`, `TicketTile`)
+- Only used in one feature
+
+**Structure:**
+```
+packages/shared_ui/
+  ├── lib/
+  │   ├── buttons/
+  │   │   ├── app_primary_button.dart
+  │   │   └── app_text_button.dart
+  │   ├── inputs/
+  │   │   └── app_text_field.dart
+  │   ├── dialogs/
+  │   │   ├── error_dialog.dart
+  │   │   └── confirmation_dialog.dart
+  │   └── shared_ui.dart
+  └── test/
+```
+
+> **Principle:** Only move components to shared when **reuse + consistency** makes sense.
+
+---
+
+## 🧩 **Q12: If we have multiple login methods (email, OTP), do we need multiple repositories?**
+
+### **Answer:**
+
+No. One **AuthRepository** can serve multiple authentication methods.
+
+**You split behavior at the Use Case level:**
+
+```dart
+// packages/feature_auth/lib/domain/repositories/auth_repository.dart
+abstract class AuthRepository {
+  Future<Result<Failure, AuthToken>> loginWithEmail(String email, String password);
+  Future<Result<Failure, void>> sendOTP(String phoneNumber);
+  Future<Result<Failure, AuthToken>> verifyOTP(String phoneNumber, String code);
+  Future<Result<Failure, AuthToken>> loginWithGoogle();
+  Future<Result<Failure, void>> logout();
+}
+
+// Single implementation in data layer
+class AuthRepositoryImpl implements AuthRepository {
+  final AuthRemoteDataSource remoteDataSource;
+  final AuthLocalDataSource localDataSource;
+  
+  @override
+  Future<Result<Failure, AuthToken>> loginWithEmail(
+    String email, 
+    String password,
+  ) async {
+    // Implementation
+  }
+  
+  @override
+  Future<Result<Failure, void>> sendOTP(String phoneNumber) async {
+    // Implementation
+  }
+  
+  // ... other methods
+}
+```
+
+**Different Use Cases consume the repository:**
+```dart
+// Login with email use case
+class LoginWithEmailUseCase {
+  final AuthRepository repository;
+  
+  Future<Result<Failure, AuthToken>> call(
+    String email, 
+    String password,
+  ) {
+    return repository.loginWithEmail(email, password);
+  }
+}
+
+// OTP authentication use case
+class VerifyOTPUseCase {
+  final AuthRepository repository;
+  
+  Future<Result<Failure, AuthToken>> call(
+    String phoneNumber, 
+    String code,
+  ) {
+    return repository.verifyOTP(phoneNumber, code);
+  }
+}
+```
+
+**Different BLoCs for different workflows:**
+```dart
+LoginBloc       → uses LoginWithEmailUseCase
+OTPAuthBloc     → uses SendOTPUseCase + VerifyOTPUseCase
+SocialAuthBloc  → uses LoginWithGoogleUseCase
+```
+
+**Benefits:**
+
+✅ Single source of truth for auth logic  
+✅ Easier to maintain and test  
+✅ Shared session management  
+✅ Consistent error handling  
+
+---
+
+## 🧩 **Q13: Will unused code inside packages increase final app size?**
+
+### **Answer:**
+
+**No.** Flutter uses **tree shaking** → only imported & reachable code ends up in the final build.
+
+**How tree shaking works:**
+1. Compiler starts from `main()` function
+2. Traces all reachable code paths
+3. Includes only what's actually imported and used
+4. Removes all unreachable code
+
+**Example:**
+```dart
+// packages/feature_auth/lib/feature_auth.dart
+export 'presentation/email_login_page.dart';
+export 'presentation/otp_login_page.dart';      // ← You don't import this
+export 'presentation/social_login_page.dart';   // ← You don't import this
+
+// mobile/lib/main.dart
+import 'package:feature_auth/feature_auth.dart' show EmailLoginPage;
+```
+
+**Result:**
+- ✅ `EmailLoginPage` → **included** in build
+- ❌ `OTPLoginPage` → **NOT included** (unreachable)
+- ❌ `SocialLoginPage` → **NOT included** (unreachable)
+
+**Build size depends on:**
+- What you **import**
+- What's **reachable** from imported code
+- Not on what exists in the package folder
+
+> **Takeaway:** Don't worry about unused code bloating your app. Flutter's compiler is smart enough to exclude it.
+
+---
+
+## 🧩 **Q14: Will unused packaged code reduce test coverage?**
+
+### **Answer:**
+
+**No.** Coverage is calculated **per app**, not per workspace.
+
+**How coverage works:**
+- Coverage measures: "What percentage of code **in your app** is tested?"
+- It only counts files that are **imported and compiled** into your app
+- Unused code in packages is **not part of your app's coverage report**
+
+**Example:**
+```yaml
+# Your app only imports email login
+dependencies:
+  feature_auth:
+    path: ../packages/feature_auth
+
+# main.dart
+import 'package:feature_auth/feature_auth.dart' show EmailLoginPage;
+```
+
+**Coverage report will only include:**
+- ✅ `EmailLoginPage` and its dependencies
+- ❌ NOT `OTPLoginPage` (not imported)
+- ❌ NOT `SocialLoginPage` (not imported)
+
+**If you want package-level coverage:**
+```bash
+cd packages/feature_auth
+flutter test --coverage
+```
+
+This tests **the entire package** independently.
+
+**Best practice:**
+- Test each package independently in its own directory
+- Test the app as a whole with integration tests
+- Don't worry about unused package code affecting app coverage
+
+---
+
+## 🧩 **Q15: What ensures one package doesn't depend directly on UI of another package?**
+
+### **Answer:**
+
+Enforce this through **Clean Architecture layers + package structure**:
+
+### **1. Architectural Rules:**
+
+```
+Domain Layer → No dependencies on other features ✅
+Data Layer   → Can depend on domain interfaces only ✅
+UI Layer     → Can depend on domain + data within same feature ✅
+```
+
+**Example of violation:**
+```dart
+// ❌ BAD: feature_payment imports feature_auth UI
+// packages/feature_payment/lib/presentation/payment_page.dart
+import 'package:feature_auth/presentation/login_page.dart'; // ❌ WRONG!
+
+class PaymentPage extends StatelessWidget {
+  void handleLogout() {
+    Navigator.push(context, LoginPage()); // ❌ Direct UI dependency!
+  }
+}
+```
+
+**Correct approach:**
+```dart
+// ✅ GOOD: Navigate via routes, use domain events
+// packages/feature_payment/lib/presentation/payment_page.dart
+import 'package:core/navigation/app_router.dart';
+
+class PaymentPage extends StatelessWidget {
+  void handleLogout() {
+    context.read<AuthBloc>().add(LogoutRequested()); // Domain event
+    AppRouter.navigateToLogin(); // Route-based navigation
+  }
+}
+```
+
+### **2. Melos Package Dependency Validation:**
+
+Configure `pubspec.yaml` to prevent illegal dependencies:
+
+```yaml
+# packages/feature_payment/pubspec.yaml
+dependencies:
+  core:
+    path: ../core
+  domain:
+    path: ../domain
+  # ❌ feature_auth is NOT listed - compiler will prevent import!
+```
+
+If you try to import `feature_auth`:
+```dart
+import 'package:feature_auth/feature_auth.dart'; // ❌ Compile error!
+```
+
+### **3. Use Linting Rules:**
+
+Add custom lint rules in `analysis_options.yaml`:
+
+```yaml
+# analysis_options.yaml
+linter:
+  rules:
+    - prefer_relative_imports
+    
+analyzer:
+  errors:
+    # Treat cross-feature imports as errors
+    invalid_annotation_target: error
+```
+
+### **4. Code Review Checklist:**
+
+- [ ] Does PR add dependency to another feature package?
+- [ ] Does UI import from another feature's presentation layer?
+- [ ] Are domain interfaces used instead of concrete implementations?
+
+### **5. Automated CI Checks:**
+
+```bash
+# scripts/check_import_boundaries.dart
+#!/usr/bin/env dart
+
+// Check for illegal cross-feature imports
+// Run in CI pipeline
+```
+
+**Summary:**
+- **Architecture** defines the rules
+- **Package structure** enforces them at compile time
+- **Linting** catches violations early
+- **CI/CD** prevents merging violations
+
+---
+
+## 🧩 **Q16: How does Melos help practically?**
+
+### **Answer:**
+
+Melos provides **monorepo automation** that saves hours of manual work:
+
+### **1. Auto-Link Local Packages**
+
+**Without Melos:**
+```bash
+cd mobile && flutter pub get
+cd ../packages/core && flutter pub get
+cd ../feature_auth && flutter pub get
+# Manually manage path dependencies
+```
+
+**With Melos:**
+```bash
+melos bootstrap
+# ✅ All packages linked automatically
+# ✅ Symlinks created for local dependencies
+# ✅ Single command for entire workspace
+```
+
+### **2. Run Commands on Changed Packages Only**
+
+**Without Melos:**
+```bash
+# Have to manually identify what changed
+cd packages/core && flutter test
+cd ../feature_auth && flutter test
+# Skip feature_payment (didn't change)
+```
+
+**With Melos:**
+```bash
+melos run test --since=main
+# ✅ Only runs tests in packages changed since main branch
+# ✅ Saves CI time and cost
+```
+
+### **3. Lint All Packages Together**
+
+**Without Melos:**
+```bash
+cd mobile && flutter analyze
+cd ../packages/core && flutter analyze
+cd ../packages/feature_auth && flutter analyze
+# Check each one manually
+```
+
+**With Melos:**
+```bash
+melos run analyze
+# ✅ Runs in all packages
+# ✅ Aggregated error report
+```
+
+### **4. Selective Package Execution**
+
+```bash
+# Run tests only in feature packages
+melos run test --scope="feature_*"
+
+# Format code everywhere except mobile
+melos run format --ignore="mobile"
+
+# Analyze only core packages
+melos run analyze --scope="*core*"
+```
+
+### **5. Version Management**
+
+```bash
+# Bump versions of changed packages
+melos version
+
+# Generate changelog
+melos run changelog
+```
+
+### **6. Parallel Execution**
+
+```bash
+# Run tests in all packages concurrently
+melos run test --no-select
+# ✅ Faster than sequential execution
+```
+
+### **7. Custom Scripts**
+
+Define in root `pubspec.yaml`:
+
+```yaml
+melos:
+  scripts:
+    # Run code generation everywhere
+    generate:
+      exec: dart run build_runner build --delete-conflicting-outputs
+      packageFilters:
+        dependsOn: "build_runner"
+    
+    # Clean all packages
+    clean:
+      exec: flutter clean
+      
+    # Update dependencies
+    outdated:
+      exec: flutter pub outdated
+```
+
+Then run:
+```bash
+melos run generate
+melos run clean
+melos run outdated
+```
+
+### **Real-World Time Savings:**
+
+| Task                  | Without Melos | With Melos | Time Saved |
+| --------------------- | ------------- | ---------- | ---------- |
+| Bootstrap workspace   | 10 min        | 1 min      | 90%        |
+| Run all tests         | 5 min         | 30 sec     | 90%        |
+| Analyze all packages  | 3 min         | 20 sec     | 89%        |
+| Format all code       | 2 min         | 15 sec     | 87%        |
+| Version bumps         | 15 min        | 1 min      | 93%        |
+
+**Annual impact for 5-person team:**
+- Daily time saved: ~30 minutes/developer
+- Weekly: 2.5 hours/developer = 12.5 hours/team
+- **Yearly: 650 hours saved** ≈ **$65,000 in developer time** (at $100/hr)
+
+> **Melos is essential for any Flutter monorepo with 3+ packages.**
 
 ---
 
@@ -1177,6 +1757,47 @@ void main() {
 
 ### 🎯 The Golden Rule:
 > **Features depend on contracts (domain), not other features (implementations).**
+
+---
+
+## 🧠 **Quick Memory Rule**
+
+```
+If it's shared behavior        → shared package (core, domain)
+If it's feature-specific       → feature package
+If it's global domain model    → domain package
+If it's trivial UI             → keep local in feature
+If it's reusable styled UI     → shared_ui package
+If multiple features need it   → create interface in domain
+If only one feature needs it   → keep in that feature
+```
+
+**Dependency Direction (Always):**
+```
+mobile (app)
+    ↓
+features (auth, payment, profile)
+    ↓
+domain (contracts, interfaces)
+    ↓
+core (utilities, logging)
+```
+
+**The "Don't" List:**
+- ❌ Feature A → Feature B (direct dependency)
+- ❌ Core → Feature (reverse dependency)
+- ❌ Domain → Data layer (wrong direction)
+- ❌ Mixing UI with business logic
+- ❌ Inheritance across package boundaries
+
+**The "Do" List:**
+- ✅ Use interfaces in domain for shared contracts
+- ✅ Compose entities instead of inheriting
+- ✅ Export only public APIs from packages
+- ✅ Test packages independently
+- ✅ Keep packages focused and cohesive
+
+---
 
 ### 📚 Further Reading:
 See `docs/solution_architecture_coupling.md` for detailed examples and patterns.
