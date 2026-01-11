@@ -37,3 +37,14 @@ Template (copy per day):
   - Discovered `melos.yaml` is deprecated in Melos 7.x - migrated to `pubspec.yaml` with `workspace:` and `melos:` keys, added `resolution: workspace` to all packages.
 - Next:
   - Day 4 — State management patterns comparison (Provider vs Riverpod vs BLoC).
+
+## Day 4 — 2026-01-10
+- Learned:
+  - Implemented real shopping cart feature with all three state management patterns (Provider, Riverpod, BLoC) sharing domain/data layers - practical comparison reveals Provider's simplicity vs Riverpod's safety vs BLoC's predictability.
+  - Provider uses ChangeNotifier with notifyListeners() for mutations; Riverpod uses immutable StateNotifier with copyWith pattern; BLoC uses event handlers with Emitter for state transitions.
+  - Shared architecture: domain (entities, repository interface) + data (repository impl with SharedPreferences) + three presentation implementations (provider/, riverpod/, bloc/) - demonstrates clean separation.
+  - Key differences in practice: Provider = `Consumer<CartProvider>` + `context.read()`, Riverpod = `ref.watch(cartProvider)` + derived providers for granular rebuilds, BLoC = `BlocBuilder` + `context.read<CartBloc>().add(event)`.
+- Issue:
+  - flutter_bloc version conflict (8.1.5 vs 9.1.1) between feature_cart and feature_auth - resolved by aligning to ^9.1.1 across all packages.
+- Next:
+  - Test all three implementations in simulator, compare performance/developer experience, choose one pattern for project and document ADR.
