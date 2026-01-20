@@ -21,7 +21,7 @@ class UserRepositoryImpl implements UserRepository {
       }
 
       // Simulate successful login
-      final user = UserModel(id: '123', email: email);
+      final user = UserModel(id: '123', email: email, name: '');
       return Right(user);
     } catch (e) {
       return Left(ServerFailure('Login failed: ${e.toString()}'));

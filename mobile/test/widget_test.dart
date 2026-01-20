@@ -14,7 +14,7 @@ void main() {
     final sharedPreferences = await SharedPreferences.getInstance();
 
     // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp(sharedPreferences: sharedPreferences));
+    await tester.pumpWidget(MyApp());
 
     // Verify that home page elements are present.
     expect(find.text('State Management Patterns'), findsOneWidget);
@@ -27,7 +27,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final sharedPreferences = await SharedPreferences.getInstance();
 
-    await tester.pumpWidget(MyApp(sharedPreferences: sharedPreferences));
+    await tester.pumpWidget(MyApp());
 
     // Find Provider card
     final providerCard = find.text('Provider');

@@ -14,6 +14,12 @@ Master Dependency Injection in Flutter by understanding what it is, why it exist
 * **Test code with mocked dependencies** easily
 * **Avoid common DI anti-patterns**
 
+**Time allocation (60 minutes):**
+- 15m: Understand DI problem (tight coupling) and solution
+- 20m: Implement DI with get_it for auth feature
+- 15m: Compare Riverpod DI approach (if using Riverpod)
+- 10m: Create ADR documenting DI choice
+
 ---
 
 ## 🧠 Step 1: Understanding the Problem (Why DI Exists)

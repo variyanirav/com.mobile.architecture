@@ -12,6 +12,12 @@ Transform your monolithic Flutter app into a **multi-package architecture** wher
 * **Teams can work independently** on different features
 * **Testing is easier** with clear boundaries
 
+**Time allocation (60 minutes):**
+- 15m: Learn modularization concepts and package types
+- 20m: Create package structure (feature_auth, core)
+- 15m: Implement core logger API
+- 10m: Set up Melos 7.x with Pub Workspaces
+
 ---
 
 ## 🧠 Step 1: Understanding Modularization

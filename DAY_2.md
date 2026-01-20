@@ -9,6 +9,12 @@ Understand **Clean Architecture** and how to map it into a **Flutter app structu
 * Testable (logic independent of UI),
 * Maintainable (clear separation of layers).
 
+**Time allocation (60 minutes):**
+- 15m: Read Clean Architecture summary and core concepts
+- 25m: Sketch Flutter app mapping to Clean Arch layers (paper/whiteboard)
+- 15m: Create C4 Context diagram
+- 5m: Set up analysis_options.yaml with flutter_lints
+
 ---
 
 ## 🧠 Step 1: Learn the Core Concept
