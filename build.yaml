@@ -1,0 +1,37 @@
+targets:
+  $default:
+    builders:
+      freezed:
+        generate_for:
+          - lib/**/*.dart
+          - test/**/*.dart
+        options:
+          # Generate union types for Result/Either patterns
+          union_key: "type"
+          # Generate fromJson/toJson methods
+          to_json: true
+          from_json: true
+          # Generate when/map/maybeWhen/maybeMap methods
+          map: true
+          # Generate copyWith methods
+          copyWith: true
+          # Make generated classes immutable
+          mutable: false
+
+      json_serializable:
+        generate_for:
+          - lib/**/*.dart
+          - test/**/*.dart
+        options:
+          # Always generate explicit toJson
+          explicit_to_json: true
+          # Support generic types
+          any_map: false
+          # Check for type mismatches at runtime
+          checked: true
+          # Don't throw on unknown keys (backend might add fields)
+          disallow_unrecognized_keys: false
+          # Field naming strategy (keep as-is, use @JsonKey for custom names)
+          field_rename: none
+          # Include if null (for complete serialization)
+          include_if_null: true
